@@ -28,5 +28,7 @@ merger: gitrepo svnrepo
 	git svn clone -s ${URL}/simple merger
 	cd merger && git remote add old ../gitrepo && git fetch old
 	cd merger && git checkout -b old_master old/master
+	cd merger && git filter-branch --msg-filter ' cat && echo && echo "From: $$GIT_AUTHOR_NAME <$$GIT_AUTHOR_EMAIL>" && echo "Git: $$GIT_COMMIT" && TAGS=`git tag --points-at $$GIT_COMMIT` && if [ -n "$$TAGS" ]; then echo "Tag: $${TAGS}"; fi' old_master
 	cd merger && git rebase --onto master --root 
-	cd merger && git svn dcommit --add-author-from
+	cd merger && git svn dcommit 
+	cd merger && for tag in $$(git tag); do git checkout ":/Tag: $$tag"; git svn tag $$tag; done
